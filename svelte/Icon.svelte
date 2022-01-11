@@ -10,7 +10,7 @@
   export let icon: string | Icon;
 
   $: iconContents = typeof icon === 'object' ? icon.icon : icon;
-  $: finalFill = fill ?? (icon as Icon)?.fill ? 'currentColor';
+  $: finalFill = fill ?? (icon as Icon)?.fill ?? 'currentColor';
   $: finalStroke = stroke ?? (icon as Icon)?.stroke;
   $: finalViewBox = viewBox ?? (icon as Icon)?.viewBox ?? '0 0 20 20';
   $: finalClassNames = `${sizeClasses ?? (icon as Icon)?.sizeClasses ?? ''} ${classNames}`
