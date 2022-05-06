@@ -69,7 +69,7 @@
   <div class="hidden">
     <div
       use:portal={target}
-      class="absolute inset-0 h-screen w-screen grid grid-cols-1 grid-rows-1 place-items-center z-1000"
+      class="absolute inset-0 h-screen w-screen grid grid-cols-1 grid-rows-1 place-items-center z-[1000]"
     >
       {#if backdrop}
         <slot name="backdrop" {close}>
