@@ -1,4 +1,4 @@
-import tippy from 'tippy.js';
+import tippy, { type Plugin } from 'tippy.js/headless';
 
 export type Position =
   | 'top'
@@ -19,43 +19,36 @@ export type Position =
 
 export interface TippyOptions {
   trigger?: HTMLElement;
-  on?: 'manual' | 'click focus' | 'mouseenter focus';
-  position?: Position;
+  position: Position;
   fixed?: boolean;
   interactive?: boolean;
-  showOnCreate?: boolean;
   role?: string;
-  arrow?: boolean;
+  closeOnEsc?: boolean;
   close?: () => void;
-
-  onTrigger?: () => void;
-  onUntrigger?: () => void;
 }
 
 export function showTippy(
   node: HTMLDivElement,
   {
     trigger,
-    position = 'auto',
+    position,
     fixed,
-    interactive = false,
+    interactive,
     role,
     close,
-    showOnCreate = true,
-    on = 'manual',
-    onTrigger,
-    onUntrigger,
+    closeOnEsc = true,
   }: TippyOptions
 ) {
   let tippyInstance = tippy(trigger ?? node.parentElement ?? node, {
-    interactive,
+    interactive: interactive ?? false,
     animation: false,
     hideOnClick: 'toggle',
-    trigger: on,
+    trigger: 'manual',
     maxWidth: 'none',
     placement: position,
     role,
-    showOnCreate,
+    plugins: [closeOnEsc ? closeOnEscPlugin : null].filter(Boolean) as Plugin[],
+    showOnCreate: true,
     popperOptions: {
       strategy: fixed ? 'fixed' : 'absolute',
       modifiers: [{ name: 'flip' }, { name: 'preventOverflow' }],
@@ -63,8 +56,6 @@ export function showTippy(
     render(_instance) {
       return { popper: node };
     },
-    onUntrigger,
-    onTrigger,
     onClickOutside: close,
   });
 
@@ -74,3 +65,23 @@ export function showTippy(
     },
   };
 }
+const closeOnEscPlugin: Plugin = {
+  name: 'closeOnEscPlugin',
+  defaultValue: true,
+  fn({ hide }) {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        hide();
+      }
+    }
+
+    return {
+      onShow() {
+        document.addEventListener('keydown', onKeyDown);
+      },
+      onHide() {
+        document.removeEventListener('keydown', onKeyDown);
+      },
+    };
+  },
+};
