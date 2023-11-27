@@ -1,3 +1,5 @@
+// A plugin that generates colors which automatically switch color shade depending on light or dark mode.
+
 const plugin = require('tailwindcss/plugin');
 
 const isSvench = Boolean(process.env.SVENCH);
