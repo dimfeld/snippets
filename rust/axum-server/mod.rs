@@ -31,20 +31,27 @@ use tower_http::{
 };
 use tracing::{event, Level};
 
-use crate::{db::Db, error::Error};
+use crate::error::Error;
 
-pub(super) struct InnerState {
+/// Shared state used by the server
+pub struct InnerState {
+    /// If the app is running in production mode. This should be used sparingly as there should be
+    /// a minimum of difference between production and development.
     production: bool,
-    db: Db,
     // TODO add relevant state here
 }
 
 pub(super) type ServerState = Arc<InnerState>;
 
+/// The server and related information
 pub struct Server {
+    /// The host the server is bound to
     pub host: String,
+    /// The port the server is bound to
     pub port: u16,
+    /// The server. Await this to actually start running.
     pub server: axum::Server<AddrIncoming, IntoMakeService<Router>>,
+    /// The server state.
     pub state: Arc<InnerState>,
 }
 
@@ -63,6 +70,7 @@ impl Server {
         self.run_with_shutdown_signal(shutdown_rx).await
     }
 
+    /// Run the server, and shut it down when `shutdown_rx` closes.
     pub async fn run_with_shutdown_signal<T>(
         self,
         shutdown_rx: impl Future<Output = T> + Send + 'static,
@@ -90,16 +98,22 @@ impl Server {
     }
 }
 
+/// Configuration for the server
 pub struct Config<'a> {
+    /// The environment we're running in. Currently this just distinguishes between
+    /// "development" and any other value.
     env: &'a str,
+    /// The host to bind to.
     host: String,
+    /// The port to bind to
     port: u16,
 }
 
-pub async fn create_server(config: Config<'_>, db: Db) -> Result<Server, Report<Error>> {
+/// Create the server and return it, ready to run.
+pub async fn create_server(config: Config<'_>) -> Result<Server, Report<Error>> {
     let production = config.env != "development" && !cfg!(debug_assertions);
 
-    let state = Arc::new(InnerState { production, db });
+    let state = Arc::new(InnerState { production });
 
     let app: Router<ServerState> = Router::new().merge(routes::items::routes()).layer(
         ServiceBuilder::new()
