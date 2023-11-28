@@ -8,6 +8,7 @@ export function randomColor() {
   return d3.hsl(h, s, l).rgb().formatHex();
 }
 
+/** Calculate a set of component colors that contrast well with the given color. */
 export function contrastingColor(color: d3.LabColor) {
   const MIN_DIFF = 50;
   const MAX_DIFF = 90;
