@@ -2,14 +2,16 @@ import { goto } from '$app/navigation';
 import { page } from '$app/stores';
 import { derived } from 'svelte/store';
 
-export type QsValue = string | number | boolean;
+export type QsValue = string | number | boolean | null | string[] | number[];
 
 export function queryStringStore() {
   return derived(page, (p) => {
     return {
-      set(params: Record<string, QsValue | QsValue[]>, replaceState = false, historyState = {}) {
+      set(params: Record<string, QsValue>, replaceState = false, historyState = {}) {
         let entries = Object.entries(params).flatMap(([key, value]) => {
-          if (Array.isArray(value)) {
+          if (value === null) {
+            return [];
+          } else if (Array.isArray(value)) {
             return value.map((v) => [key, v.toString()]);
           } else {
             return [[key, value.toString()]];
@@ -24,7 +26,7 @@ export function queryStringStore() {
           state: historyState,
         });
       },
-      update(params: Record<string, QsValue | QsValue[]>, replaceState = false, historyState = {}) {
+      update(params: Record<string, QsValue>, replaceState = false, historyState = {}) {
         let newQuery = new URLSearchParams(p.query);
 
         for (let [key, value] of Object.entries(params)) {
@@ -33,6 +35,8 @@ export function queryStringStore() {
             for (let v of value.slice(1)) {
               newQuery.append(key, v.toString());
             }
+          } else if (value === null) {
+            newQuery.delete(key);
           } else {
             newQuery.set(key, value.toString());
           }
