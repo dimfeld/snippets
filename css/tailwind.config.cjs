@@ -1,3 +1,4 @@
+// A tailwind config desiged for use with the autodark plugin in this directory.
 const defaultTheme = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
 const formsPlugin = require('@tailwindcss/forms');

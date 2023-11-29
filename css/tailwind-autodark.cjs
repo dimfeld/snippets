@@ -1,4 +1,5 @@
 // A plugin that generates colors which automatically switch color shade depending on light or dark mode.
+// I don't really use this anymore but it proved to be useful on some projects.
 
 const plugin = require('tailwindcss/plugin');
 
